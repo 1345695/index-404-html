@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>volumeshader_bm - Dynamic Colors</title><style>body{margin:0;overflow:hidden;background:#131115}canvas{display:block;width:100vw;height:100vh}</style></head><body><canvas id="c1"></canvas><script>let w,h,g=c1.getContext("webgl"),P=g.createProgram(),S=Math.sin,C=Math.cos,Q=Math.sqrt,mx=0,my=0,mX=0,mY=0,T=0,L=0,R=0,M=0,Z=2,A=2.8,B=.4,X=0,Y=0,W=0,cs=(r,e)=>{r=g.createShader(r);g.shaderSource(r,e),g.compileShader(r),g.attachShader(P,r)},U=(cs(35633,`#version 100
+precision highp float;attribute vec4 p;varying vec3 d,ld;uniform vec3 rt,fw,up;uniform float x,y;
+void main(){gl_Position=p;d=fw+rt*p.x*x+up*p.y*y;ld=vec3(p.x*x,p.y*y,-1.);}`),cs(35632,`#version 100
+precision highp float;
+float K(vec3 v){vec3 a=v;float b,c,d;for(int i=0;i<5;i++){b=length(a);c=atan(a.y,a.x)*8.;d=acos(a.z/b)*8.;b=pow(b,8.);a=vec3(b*sin(d)*cos(c),b*sin(d)*sin(c),b*cos(d))+v;if(b>6.)break;}return 4.-dot(a,a);}
+uniform vec3 rt,fw,up,o;varying vec3 d,ld;uniform float Z,t;
+void main(){
+vec3 c=vec3(0),v,n,rf;int s=0;float v1=K(o+d*(.001*Z)),v2=K(o),r1,r2,r3=0.,r4,m2,m3;
+for(int k=2;k<2000;k++){
+v=o+d*(.001*Z*float(k));float vk=K(v);
+if(vk>0.&&v1<0.){
+r1=.001*Z*float(k-1);r2=.001*Z*float(k);
+for(int l=0;l<16;l++){r3=(r1+r2)*.5;if(K(o+d*r3)>0.)r2=r3;else r1=r3;}
+if(r3<2.*Z){s=1;break;}
+}
+if(vk<v1&&v1>v2&&v1<0.&&(v1*2.>vk||v1*2.>v2)){
+r1=.001*Z*float(k-2);r2=.001*Z*(float(k)-1.236068);r3=.001*Z*(float(k)-.763932);r4=.001*Z*float(k);
+m2=K(o+d*r2);m3=K(o+d*r3);
+for(int l=0;l<16;l++){if(m2>m3){r4=r3;r3=r2;r2=r4*.381966+r1*.618034;m3=m2;m2=K(o+d*r2);}else{r1=r2;r2=r3;r3=r4*.618034+r1*.381966;m2=m3;m3=K(o+d*r3);}}
+if(m2>0.||m3>0.){r1=.001*Z*float(k-2);if(m2<=0.)r2=r3;for(int l=0;l<16;l++){r3=(r1+r2)*.5;if(K(o+d*r3)>0.)r2=r3;else r1=r3;}if(r3<2.*Z&&r3>.001*Z){s=1;break;}}
+}
+v2=v1;v1=vk;
+}
+if(s==1){
+v=o+d*r3;r1=dot(v,v);
+n=normalize(vec3(K(v-rt*(r3*.0001))-K(v+rt*(r3*.0001)),K(v-up*(r3*.0001))-K(v+up*(r3*.0001)),K(v+fw*(r3*.0001))-K(v-fw*(r3*.0001))));
+rf=reflect(normalize(ld),n);
+r3=max(0.,dot(rf,vec3(.276,.92,.276)));r3=r3*r3*r3*r3*.45+dot(n,vec3(.276,.92,.276))*.25+.3;
+c=vec3(sin(r1*10.+t)*.5+.5,sin(r1*10.+2.05+t)*.5+.5,sin(r1*10.-2.05+t)*.5+.5)*r3;
+}
+gl_FragColor=vec4(c,1.);
+}`),g.bindAttribLocation(P,0,"p"),g.linkProgram(P),g.useProgram(P),g.bindBuffer(34962,g.createBuffer()),g.bufferData(34962,new Float32Array([-1,-1,0,1,-1,0,1,1,0,-1,-1,0,1,1,0,-1,1,0]),35044),g.vertexAttribPointer(0,3,5126,0,0,0),g.enableVertexAttribArray(0),r=>g.getUniformLocation(P,r)),u_rt=U("rt"),u_fw=U("fw"),u_up=U("up"),u_o=U("o"),u_x=U("x"),u_y=U("y"),u_Z=U("Z"),u_t=U("t"),E=(r,e,t)=>document.addEventListener(r,e,t),te=(E("mousedown",r=>{2==r.button?R=1:L=1,M=0,mx=r.clientX,my=r.clientY}),E("mouseup",r=>{2==r.button?R=0:L=0}),E("mousemove",r=>{var e;L&&(A+=.002*(r.clientX-mx),B+=.002*(r.clientY-my),M=1),R&&(e=4*Z/(w+h),X+=e*(-(r.clientX-mx)*S(A)-(r.clientY-my)*S(B)*C(A)),Y+=e*((r.clientY-my)*C(B)),W+=e*((r.clientX-mx)*C(A)-(r.clientY-my)*S(B)*S(A)),M=1),mx=r.clientX,my=r.clientY}),E("wheel",r=>{r.preventDefault(),Z*=Math.exp(.001*r.deltaY)},{passive:0}),r=>{var e=r.touches.length,t=r.touches[0];t&&(mx=t.clientX,my=t.clientY),2==e&&(t=r.touches[1],mX=t.clientX,mY=t.clientY),T=e}),draw=(E("touchstart",te,{passive:0}),E("touchend",te,{passive:0}),E("touchmove",r=>{r.preventDefault();var e,t=r.touches.length,i=r.touches[0];1==t&&1==T?(A+=.002*(i.clientX-mx),B+=.002*(i.clientY-my),mx=i.clientX,my=i.clientY):2==t&&(r=r.touches[1],e=2*Z/(w+h),X+=e*(-(i.clientX+r.clientX-mx-mX)*S(A)-(i.clientY+r.clientY-my-mY)*S(B)*C(A)),Y+=e*((i.clientY+r.clientY-my-mY)*C(B)),W+=e*((i.clientX+r.clientX-mx-mX)*C(A)-(i.clientY+r.clientY-my-mY)*S(B)*S(A)),e=Q((mx-mX)**2+(my-mY)**2+1),mx=i.clientX,my=i.clientY,mX=r.clientX,mY=r.clientY,Z*=e/Q((mx-mX)**2+(my-mY)**2+1)),T=t},{passive:0}),document.oncontextmenu=r=>{M&&r.preventDefault()},(window.onresize=()=>{var r=window.devicePixelRatio||1;w=c1.width=innerWidth*r,h=c1.height=innerHeight*r,g.viewport(0,0,w,h)})(),(r=0)=>{g.uniform1f(u_x,2*w/(w+h)),g.uniform1f(u_y,2*h/(w+h)),g.uniform1f(u_Z,Z),g.uniform1f(u_t,5e-4*r),g.uniform3f(u_o,Z*C(A)*C(B)+X,Z*S(B)+Y,Z*S(A)*C(B)+W),g.uniform3f(u_rt,S(A),0,-C(A)),g.uniform3f(u_up,-S(B)*C(A),C(B),-S(B)*S(A)),g.uniform3f(u_fw,-C(A)*C(B),-S(B),-S(A)*C(B)),g.drawArrays(4,0,6),A+=.01,requestAnimationFrame(draw)});draw()</script></body></html>
